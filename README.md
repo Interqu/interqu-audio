@@ -1,9 +1,12 @@
 # Interqu-audio
 
-The goal - analyze waveforms to recognize unwanted / wanted speed patterns in an interview. Something of this complexity has 2 clear routes as of now:
+## NOTES
+- MODEL - Huggingface Speech2Text model
+- Use 16khz sample rate audio
 
-1. Convert audio into text form and feed to chatGPT and analyze using chatGPT
-2. Directly perform analysis on waveform. - (personal preference)
+## Audio Sample Sources
+- [16khz](http://www.fit.vutbr.cz/~motlicek/speech_hnm.html) - audio1, audio2, audio3
+- [16khz Sound Demo for the Wu-Wang](https://web.cse.ohio-state.edu/~wang.77/pnl/demo/WuReverb.html)
 
 ## Resources
 - [Torchaudio Documentation](https://pytorch.org/audio/stable/index.html)
