@@ -1,11 +1,6 @@
 {
-    "operation": "echo",
-    "payload": {
-        "somekey1": "somevalue1",
-        "somekey2": "somevalue2"
-    },
     "body": {
-        "bucket": "something",
-        "key": 23434
+        "bucket": "interqu-audio",
+        "file_name": "audio1.wav"
     }
 }
