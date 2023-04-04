@@ -27,3 +27,13 @@ Updating your function from AWS cli
 ```bash
 aws lambda update-function-code --function-name MyLambdaFunction --zip-file fileb://my-deployment-package.zip
 ```
+
+Creating a lambda layer
+```bash
+aws lambda publish-layer-version --layer-name my-layer \
+    --description "My layer" \
+    --license-info "MIT" \
+    --zip-file fileb://layer.zip \
+    --compatible-runtimes python3.6 python3.7 python3.8 \
+    --compatible-architectures "arm64" "x86_64"
+```

@@ -4,3 +4,4 @@ environments/
 *.zip
 output*.txt
 deployment/
+layer*/
