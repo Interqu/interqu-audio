@@ -9,6 +9,7 @@
 
 ## Resources
 - [aws s3 get file using lambda function](https://stackoverflow.com/questions/30651502/how-to-get-contents-of-a-text-file-from-aws-s3-using-a-lambda-function)
+- [Pytorch audio tutorials](https://github.com/bentrevett/pytorch-sentiment-analysis)
 
 ## Serverless Lambda
 

@@ -2,6 +2,7 @@
 
 import json, boto3
 import speech_recognition as sr
+import os
 
 s3 = boto3.client("s3")
 
@@ -22,21 +23,17 @@ def handler(event, context):
 
     # retrieving the file
     if bucket:
-        try:
-            with open ('/tmp/audio.wav', 'wb') as f:
-                s3.download_fileobj(bucket, file_name, f)
-        except Exception as e:
-            return f"Exception: {e}"
+        s3.download_file(bucket, file_name, "/tmp/audio.wav")
+        file_size = os.path.getsize("/tmp/audio.wav")
+        return file_size
+
     else:
         return -1
 
     r = sr.Recognizer()
     with sr.AudioFile("/tmp/audio.wav") as source:
         audio = r.record(source)
-    try:
         s = r.recognize_google(audio)
-    except Exception as e:
-        return f"Exception during translation: {e}"
 
     return {
         "isBase64Encoded": False,
