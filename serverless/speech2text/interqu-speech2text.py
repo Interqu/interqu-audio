@@ -13,22 +13,17 @@ def handler(event, context):
     bucket = body["bucket"]
     file_name = body["file_name"]
 
-    # see if i can get bucket names
-    # buckets = s3.list_buckets()
-
-    # for bucket in buckets["Buckets"]:
-    #     bucket["CreationDate"] = bucket["CreationDate"].strftime("%Y-%m-%d %H:%M:%S")
-        
-    # return {"statusCode": 200, "body": buckets}
-
     # retrieving the file
     if bucket:
         s3.download_file(bucket, file_name, "/tmp/audio.wav")
+<<<<<<< Updated upstream:serverless/speech2text/interqu-speech2text.py
         file_size = os.path.getsize("/tmp/audio.wav")
         return file_size
 
+=======
+>>>>>>> Stashed changes:serverless/text2speech/interqu-speech2text.py
     else:
-        return -1
+        return f"No bucket name provided"
 
     r = sr.Recognizer()
     with sr.AudioFile("/tmp/audio.wav") as source:

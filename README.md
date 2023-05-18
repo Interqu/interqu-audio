@@ -6,6 +6,7 @@
 ## Audio Sample Sources
 - [16khz](http://www.fit.vutbr.cz/~motlicek/speech_hnm.html) - audio1, audio2, audio3
 - [16khz Sound Demo for the Wu-Wang](https://web.cse.ohio-state.edu/~wang.77/pnl/demo/WuReverb.html)
+- [more wav files](https://www.wavsource.com/people/comedians.htm)
 
 ## Resources
 - [aws s3 get file using lambda function](https://stackoverflow.com/questions/30651502/how-to-get-contents-of-a-text-file-from-aws-s3-using-a-lambda-function)
