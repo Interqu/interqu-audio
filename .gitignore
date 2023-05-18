@@ -5,3 +5,4 @@ environments/
 output*.txt
 deployment/
 layer*/
+samples/
