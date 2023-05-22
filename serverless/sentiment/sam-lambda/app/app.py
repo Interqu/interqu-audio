@@ -6,7 +6,11 @@ import os
 import librosa
 import json
 from sklearn.preprocessing import StandardScaler
+import boto3
+import soundfile as sf
 
+# define client session
+s3_client = boto3.client("s3")
 
 EMOTIONS = {
     1: "neutral",
@@ -35,10 +39,6 @@ def getMELspectrogram(audio, sample_rate):
     )
     mel_spec_db = librosa.power_to_db(mel_spec, ref=np.max)
     return mel_spec_db
-
-
-import torch
-import torch.nn as nn
 
 
 # model definition
@@ -129,14 +129,14 @@ class ParallelModel(nn.Module):
         return output_logits, output_softmax, attention_weights_norm
 
 
-def generateInputTensor(audio):
-    # split .wav into segments
-    data = []  # store the segments
+def generateInputTensor(audio_path):
+    # load split files
     signals = []
 
     # loading and signals
-    for wav in data:
-        audio, sample_rate = librosa.load(wav, duration=3, offset=0.5, sr=SAMPLE_RATE)
+    for wav_path in os.listdir("/tmp/splits/"):
+        # print(wav_path)
+        audio, sample_rate = librosa.load(f"/tmp/splits/{wav_path}", duration=3, offset=0.5, sr=SAMPLE_RATE)
         signal = np.zeros(
             (
                 int(
@@ -146,7 +146,7 @@ def generateInputTensor(audio):
         )
         signal[: len(audio)] = audio
         signals.append(signal)
-    signals = np.stack(signals, axis=0)
+    signals = np.stack(signals, axis=0)  # fails if no signals are in here
 
     scaler = StandardScaler()
 
@@ -174,14 +174,50 @@ def generateInputTensor(audio):
     return torch.tensor(input, device="cpu").float()
 
 
+def split_audio(audio_path):
+    # split into 3 second lengths
+    os.makedirs("/tmp/splits/", exist_ok=True)
+    wave, sr = librosa.load(audio_path, sr=SAMPLE_RATE)
+
+    # segment duration
+    seg_duration = 3 # seconds
+    seg_length = sr * seg_duration
+
+    # num sections
+    num_sections = int(np.ceil(len(wave) / seg_length))
+    splits = []
+
+    for i in range(num_sections):
+        t = wave[i * seg_length: (i + 1) * seg_length]
+        splits.append(t)
+
+    for i in range(num_sections):
+        recording_name = os.path.basename("audio"[:-4])
+        out_file = f"{recording_name}_{str(i)}.wav"
+        sf.write(os.path.join("/tmp/splits/", out_file), splits[i], sr)
+
+    print(f"split audio using sample rate to be {sr}")
+
+
 def lambda_handler(event, context):
+    # determine what audio file to fetch
+    audio_file = event["file_name"]
+    if not audio_file:
+        return {
+            "statusCode": 400,
+            "body": json.dumps(
+                {
+                    "error": "no file name was provided",
+                }
+            ),
+        }
+
     # load saved model
     LOAD_PATH = os.path.join(os.getcwd(), "models")
+    print(LOAD_PATH)
     model = ParallelModel(len(EMOTIONS))
     model.load_state_dict(
-        torch.load(
-            "./models/cnn_lstm_parallel_model.pt", map_location=torch.device("cpu")
-        )
+        torch.load("/opt/ml/cnn_model.pt", map_location=torch.device("cpu"))
     )
     print(
         "Model is loaded from {}".format(
@@ -189,15 +225,20 @@ def lambda_handler(event, context):
         )
     )
 
-    # load the audio file
-    audio = 0
+    # download the audio file
+    s3_client.download_file("interqu-audio", audio_file, "/tmp/audio.wav")
 
+    # split the audio file
+    split_audio("/tmp/audio.wav")
+
+    # load the audio files
+    input_tensor = generateInputTensor("/tmp/splits/")
+    
     # make predictions
-    input_tensor = generateInputTensor(audio)
     with torch.no_grad():
         model.eval()
         output_logits, output_softmax, attention_weights_norm = model(input_tensor)
-        predictions = torch.argmax(output_softmax, dim=1)
+        predictions = torch.argmax(output_softmax, dim=1).tolist()
 
     return {
         "statusCode": 200,

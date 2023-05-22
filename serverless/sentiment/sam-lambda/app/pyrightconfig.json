@@ -3,7 +3,7 @@
   "exclude": ["packages", "deployment.zip", "venv"],
   "venvPath": "/Users/lefan/Programming/interqu-audio/serverless/",
   "venv": "venv",
-  "pythonVersion": "3.9",
+  "pythonVersion": "3.9.16",
   "pythonPlatform": "Darwin",
   "executionEnvironments": [
     {
