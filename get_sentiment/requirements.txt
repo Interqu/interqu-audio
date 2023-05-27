@@ -1,8 +1,6 @@
 -f https://download.pytorch.org/whl/torch_stable.html
 torch==1.13.1+cpu
 torchvision==0.14.1+cpu
-pillow
-pandas
 librosa
 boto3
 soundfile

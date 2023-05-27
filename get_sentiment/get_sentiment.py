@@ -22,7 +22,7 @@ EMOTIONS = {
     7: "disgust",
     0: "surprise",
 }
-DATA_PATH = "../input/audio_speech_actors_01-24/"
+DATA_PATH = "/tmp/splits/"
 SAMPLE_RATE = 48000
 
 
@@ -129,14 +129,15 @@ class ParallelModel(nn.Module):
         return output_logits, output_softmax, attention_weights_norm
 
 
-def generateInputTensor(audio_path):
+def generateInputTensor():
     # load split files
     signals = []
 
     # loading and signals
-    for wav_path in os.listdir("/tmp/splits/"):
-        # print(wav_path)
-        audio, sample_rate = librosa.load(f"/tmp/splits/{wav_path}", duration=3, offset=0.5, sr=SAMPLE_RATE)
+    for wav_path in os.listdir(DATA_PATH):
+        audio, sample_rate = librosa.load(
+            f"{DATA_PATH}{wav_path}", duration=3, offset=0.5, sr=SAMPLE_RATE
+        )
         signal = np.zeros(
             (
                 int(
@@ -180,7 +181,7 @@ def split_audio(audio_path):
     wave, sr = librosa.load(audio_path, sr=SAMPLE_RATE)
 
     # segment duration
-    seg_duration = 3 # seconds
+    seg_duration = 3  # seconds
     seg_length = sr * seg_duration
 
     # num sections
@@ -188,20 +189,20 @@ def split_audio(audio_path):
     splits = []
 
     for i in range(num_sections):
-        t = wave[i * seg_length: (i + 1) * seg_length]
+        t = wave[i * seg_length : (i + 1) * seg_length]
         splits.append(t)
 
     for i in range(num_sections):
         recording_name = os.path.basename("audio"[:-4])
         out_file = f"{recording_name}_{str(i)}.wav"
-        sf.write(os.path.join("/tmp/splits/", out_file), splits[i], sr)
+        sf.write(os.path.join(DATA_PATH, out_file), splits[i], sr)
 
-    print(f"split audio using sample rate to be {sr}")
+    print(f"split audio using sample rate to be: {sr}")
 
 
 def lambda_handler(event, context):
     # determine what audio file to fetch
-    audio_file = event["file_name"]
+    audio_file = event["queryStringParameters"]["file_name"]
     if not audio_file:
         return {
             "statusCode": 400,
@@ -232,8 +233,8 @@ def lambda_handler(event, context):
     split_audio("/tmp/audio.wav")
 
     # load the audio files
-    input_tensor = generateInputTensor("/tmp/splits/")
-    
+    input_tensor = generateInputTensor()
+
     # make predictions
     with torch.no_grad():
         model.eval()

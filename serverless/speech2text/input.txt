@@ -1,6 +1,0 @@
-{
-    "body": {
-        "bucket": "interqu-audio",
-        "file_name": "ass.wav"
-    }
-}

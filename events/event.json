@@ -1,4 +1,7 @@
 {
+  "queryStringParameters": {
+    "file_name": "audio1.wav"
+  },
   "resource": "/{proxy+}",
   "path": "/path/to/resource",
   "httpMethod": "POST",
